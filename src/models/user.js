@@ -53,7 +53,11 @@ const alumniSchema = new Schema({
     type: Boolean,
     default: false,
     required: true
-}
+  },
+  password: {
+    type: String,
+    required: true,
+  }
 });
 
 const Alumni = model("Alumni", alumniSchema);

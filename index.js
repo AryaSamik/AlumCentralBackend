@@ -9,11 +9,13 @@ const express=require("express");
 const bodyparser=require('body-parser');
 const adminRouter=require('./src/routes/admin');
 const alumniRouter=require('./src/routes/alumni');
+const cookie_parser = require("cookie-parser");
 
 const app=express();
 app.use(express.json());
 app.use(cors(corsOption));
 app.use('/uploads', express.static('uploads')); // Serve static files from the uploads directory
+app.use(cookie_parser());
 
 app.use('/admin',adminRouter);
 app.use('/alumni',alumniRouter);

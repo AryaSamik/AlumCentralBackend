@@ -2,6 +2,9 @@ const express = require("express");
 const Alumni = require('../models/user');
 const upload = require('../middlewares/multer');
 const { uploadOnCloudinary } = require('../utils/cloudinary');
+const generateTokenAndSetCookie = require("../utils/generateToken.js");
+const bcrypt = require("bcrypt");
+const {isLoggedIn, isLoggedOut} = require("../middlewares/Login.js");
 
 const router = express.Router();
                                             
@@ -10,7 +13,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
         console.log("Request Body:", req.body); // Debug log for request body
         console.log("File:", req.file); // Debug log for file
 
-        const { name, email, bitRollno, branch,admissionYear, graduationYear, tools, company, designation, message } = req.body;
+        const { name, email, bitRollno, branch,admissionYear, graduationYear, tools, company, designation, message, password } = req.body;
         const existingUser = await Alumni.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
@@ -33,6 +36,9 @@ router.post('/register', upload.single('image'), async (req, res) => {
             return res.status(400).json({ message: 'No image file provided' });
         }
 
+        let hashedPassword = null;
+        hashedPassword = await bcrypt.hash(password, 10);
+
         const newAlumni = new Alumni({
             name,
             image: imageUrl,
@@ -44,9 +50,11 @@ router.post('/register', upload.single('image'), async (req, res) => {
             tools,
             company,
             designation,
-            message
-
+            message,
+            password: hashedPassword,
         });
+        
+        generateTokenAndSetCookie(newAlumni.email, res);
 
         await newAlumni.save();
         return res.status(201).json({ message: 'Registration successful', alumni: newAlumni });
@@ -55,6 +63,42 @@ router.post('/register', upload.single('image'), async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+router.post("/login", isLoggedIn, async (req, res) => {
+    try{
+        let { email, password } = req.body;
+        let user = await Alumni.findOne({email: email});
+        if(!user){
+            return res.json({message: 'No such user exists'});
+        }
+
+        const passCheck = await bcrypt.compare(password, user.password || "");
+        if(!passCheck){
+            return res.status(400).json({message: "Incorrect password"});
+        }
+
+        generateTokenAndSetCookie(email,res);
+
+        res.status(200).json({
+            message: "Logged in sucessfully",
+            user: user
+        });
+    } catch(err) {
+        console.log(err);
+        res.status(err.status).json({message: 'Internal Server Error'});
+    }
+});
+
+router.post("/logout", isLoggedOut, async(req, res) => {
+    try{
+        res.cookie("jwt", "", {maxAge: 0});
+        res.status(200).send({message: 'Logged out successfully'});
+    } catch(err) {
+        console.log(err);
+        res.status(err.status).json({message: "Internal Server Error"});
+    }
+})
+
 router.get('/all', async (req, res) => {
     try {
         const alumni = await Alumni.find({});
