@@ -56,7 +56,7 @@ router.get("/:id", protectRoute, async (req, res) => {
         let conversation = await Conversation.findOne({participants:{$all: [senderId, receiverId]}}).populate('messages');
 
         if(!conversation){
-            return res.status(200).json([]);
+            return res.status(200).json({messages: []});
         }
 
         res.status(200).json({messages: conversation.messages});
