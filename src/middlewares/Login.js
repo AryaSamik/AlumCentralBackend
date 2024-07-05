@@ -1,11 +1,10 @@
 const isLoggedIn = (req, res, next) => {
     try{
-        console.log(req.cookies.jwt);
         if(!req.cookies.jwt){
             next();
         } else {
             res.json({
-                message: 'Already Logged in'
+                message: 'A user is already Logged in'
             });
         }
     } catch (err) {
@@ -16,7 +15,6 @@ const isLoggedIn = (req, res, next) => {
 
 const isLoggedOut = (req, res, next) => {
     try{
-        console.log(req.cookies.jwt);
         if(req.cookies.jwt){
             next();
         } else {

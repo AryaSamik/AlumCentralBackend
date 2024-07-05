@@ -10,6 +10,9 @@ const router = express.Router();
                                             
 router.post('/register', upload.single('image'), async (req, res) => {
     try {
+        if(req.cookies.jwt){
+            return res.status(400).json({message: 'A user is already logged in'})
+        }
         console.log("Request Body:", req.body); // Debug log for request body
         console.log("File:", req.file); // Debug log for file
 
@@ -23,7 +26,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
 
         let imageUrl = null;
         if (req.file) {
-            const uploadResult = await uploadOnCloudinary(req.file.path);
+                const uploadResult = await uploadOnCloudinary(req.file.path);
             if (uploadResult) {
                 imageUrl = uploadResult.secure_url;
                 console.log("Image uploaded to Cloudinary:", imageUrl); // Debug log for Cloudinary URL
@@ -54,13 +57,16 @@ router.post('/register', upload.single('image'), async (req, res) => {
             password: hashedPassword,
         });
         
-        generateTokenAndSetCookie(newAlumni.email, res);
-
+        generateTokenAndSetCookie(newAlumni._id, req, res);
         await newAlumni.save();
-        return res.status(201).json({ message: 'Registration successful', alumni: newAlumni });
+        return res.status(201).json({
+            message: 'Registration successful',
+            alumni: newAlumni,
+            token: req.token
+        });
     } catch (error) {
         console.error("Error in /register route:", error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: error.message });
     }
 });
 
@@ -77,11 +83,12 @@ router.post("/login", isLoggedIn, async (req, res) => {
             return res.status(400).json({message: "Incorrect password"});
         }
 
-        generateTokenAndSetCookie(email,res);
+        generateTokenAndSetCookie(user._id, req, res);
 
         res.status(200).json({
             message: "Logged in sucessfully",
-            user: user
+            user: user,
+            token: req.token
         });
     } catch(err) {
         console.log(err);
