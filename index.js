@@ -31,3 +31,9 @@ app.listen(port,()=>{
 app.get("/",(req,res)=>{
     res.send("Sever is up and running at port"+ port);
 });
+
+app.get("*",(req, res) => {
+    res.status(400).json({
+        message: "Route does not exist"
+    })
+})
