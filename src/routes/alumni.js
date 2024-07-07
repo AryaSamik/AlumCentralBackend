@@ -5,6 +5,7 @@ const { uploadOnCloudinary } = require('../utils/cloudinary');
 const generateTokenAndSetCookie = require("../utils/generateToken.js");
 const bcrypt = require("bcrypt");
 const {isLoggedIn, isLoggedOut} = require("../middlewares/Login.js");
+const protectRoute =require("../middlewares/protectRoute.js");
 
 const router = express.Router();
                                             
@@ -70,31 +71,43 @@ router.post('/register', upload.single('image'), async (req, res) => {
     }
 });
 
-router.post("/login", isLoggedIn, async (req, res) => {
-    try{
-        let { email, password } = req.body;
-        let user = await Alumni.findOne({email: email});
-        if(!user){
-            return res.json({message: 'No such user exists'});
+router.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Validate the input
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
         }
 
-        const passCheck = await bcrypt.compare(password, user.password || "");
-        if(!passCheck){
-            return res.status(400).json({message: "Incorrect password"});
+        // Find the user by email
+        const user = await Alumni.findOne({ email: email });
+        if (!user) {
+            return res.status(400).json({ message: 'No such user exists' });
         }
 
+        // Compare the provided password with the stored hashed password
+        const passCheck = await bcrypt.compare(password, user.password);
+        if (!passCheck) {
+            return res.status(400).json({ message: 'Incorrect password' });
+        }
+
+        // Generate token and set cookie (assuming you have a function for this)
         generateTokenAndSetCookie(user._id, req, res);
-
+           
+        // Respond with success
         res.status(200).json({
-            message: "Logged in sucessfully",
+            message: 'Logged in successfully',
             user: user,
             token: req.token
         });
-    } catch(err) {
-        console.log(err);
-        res.status(err.status).json({message: 'Internal Server Error'});
+    } catch (err) {
+        console.error(err);
+        // Ensure a valid status code is sent
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 router.post("/logout", isLoggedOut, async(req, res) => {
     try{

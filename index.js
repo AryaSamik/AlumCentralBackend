@@ -11,6 +11,7 @@ const adminRouter=require('./src/routes/admin');
 const alumniRouter=require('./src/routes/alumni');
 const cookieParser = require("cookie-parser");
 const messageRouter = require('./src/routes/message');
+const conversationRouter=require('./src/routes/converstion');
 
 const app=express();
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use('/admin',adminRouter);
 app.use('/alumni',alumniRouter);
 app.use('/messages',messageRouter);
+app.use('/users',conversationRouter);
 
 const port=process.env.PORT||8000;
 
