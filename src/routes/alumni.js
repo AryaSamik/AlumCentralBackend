@@ -71,7 +71,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
     }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", isLoggedIn, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -94,7 +94,7 @@ router.post("/login", async (req, res) => {
 
         // Generate token and set cookie (assuming you have a function for this)
         generateTokenAndSetCookie(user._id, req, res);
-           
+        
         // Respond with success
         res.status(200).json({
             message: 'Logged in successfully',
