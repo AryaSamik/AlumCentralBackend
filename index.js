@@ -1,6 +1,6 @@
 const cors=require("cors");
 const corsOption={
-    origin:["http://localhost:3001/", "http://localhost:3000/", "https://alum-central-frontend.vercel.app/"],
+    origin:["http://localhost:3001", "http://localhost:3000", "https://alum-central-frontend.vercel.app"],
     optionSucceessStatus:200,
     credentials: true
 };
