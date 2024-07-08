@@ -1,7 +1,8 @@
 const cors=require("cors");
 const corsOption={
-    origin:"*",
+    origin:["http://localhost:3001", "http://localhost:3000", "https://alum-central-frontend.vercel.app/"],
     optionSucceessStatus:200,
+    credentials: true
 };
 require('dotenv').config();
 const DB=require('./src/config/db');

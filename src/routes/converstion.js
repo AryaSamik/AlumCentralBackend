@@ -26,7 +26,7 @@ const router = express.Router();
 // });
 router.get('/conversations', protectRoute, async (req, res) => {
     try {
-        const userId = req.sender._id;
+        const userId = req.sender._id.toString();
         const conversations = await Conversation.find({ participants: userId }).populate('participants');
 
         // Extract alumniIds from conversations
@@ -35,11 +35,10 @@ router.get('/conversations', protectRoute, async (req, res) => {
             .flat()
             .map(participant => participant._id);
 
-   
+            
 
         // Query alumni, excluding userId field from response
-        const alumni = await Alumni.find({ _id: { $in: alumniIds,$ne: userId } });
-
+        const alumni = await Alumni.find({ _id: { $in: alumniIds} });
         res.status(200).json(alumni);
     } catch (error) {
         console.error('Error fetching conversations:', error);
