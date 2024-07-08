@@ -17,8 +17,8 @@ const conversationRouter=require('./src/routes/converstion');
 const app=express();
 app.use(express.json());
 app.use(cors(corsOption));
-app.use('/uploads', express.static('uploads')); // Serve static files from the uploads directory
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads')); // Serve static files from the uploads directory
 
 app.use('/admin',adminRouter);
 app.use('/alumni',alumniRouter);
