@@ -1,8 +1,9 @@
 const cors=require("cors");
-// const corsOption={
-//     origin:"*",
-//     optionSucceessStatus:200,
-// };
+ const corsOption={
+     origin:"*",
+     optionSucceessStatus:200,
+      credentials: true
+ };
 require('dotenv').config();
 const DB=require('./src/config/db');
 const express=require("express");
