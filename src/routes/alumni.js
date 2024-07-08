@@ -96,6 +96,7 @@ router.post("/login", isLoggedIn, async (req, res) => {
         generateTokenAndSetCookie(user._id, req, res);
         
         // Respond with success
+        console.log("logged in");
         res.status(200).json({
             message: 'Logged in successfully',
             user: user,
@@ -112,6 +113,7 @@ router.post("/login", isLoggedIn, async (req, res) => {
 router.post("/logout", isLoggedOut, async(req, res) => {
     try{
         res.cookie("jwt", "", {maxAge: 0});
+        console.log("logged out");
         res.status(200).send({message: 'Logged out successfully'});
     } catch(err) {
         console.log(err);
