@@ -3,7 +3,7 @@ const isLoggedIn = (req, res, next) => {
         if(!req.cookies.jwt){
             next();
         } else {
-            res.json({
+            res.status(400).json({
                 message: 'A user is already Logged in'
             });
         }
@@ -18,7 +18,7 @@ const isLoggedOut = (req, res, next) => {
         if(req.cookies.jwt){
             next();
         } else {
-            res.json({
+            res.status(400).json({
                 message: 'Already Logged out'
             });
         }

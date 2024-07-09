@@ -1,7 +1,8 @@
 const cors=require("cors");
 const corsOption={
-    origin:["http://localhost:3001", "http://localhost:3000", "https://alum-central-frontend.vercel.app"],
-    optionSucceessStatus:200,
+    origin:["http://localhost:3001", "http://localhost:3001", "https://alum-central-frontend.vercel.app"],
+    // optionSucceessStatus:200,
+    methods:["POST","GET","DELETE","PATCH"],
     credentials: true
 };
 require('dotenv').config();
@@ -16,8 +17,8 @@ const conversationRouter=require('./src/routes/converstion');
 
 const app=express();
 app.use(express.json());
-app.use(cors(corsOption));
 app.use(cookieParser());
+app.use(cors(corsOption));
 app.use('/uploads', express.static('uploads')); // Serve static files from the uploads directory
 
 app.use('/admin',adminRouter);

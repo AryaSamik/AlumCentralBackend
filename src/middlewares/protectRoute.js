@@ -3,7 +3,6 @@ const Alumni = require("../models/user");
 
 const protectRoute = async (req, res, next) => {
   try {
-    console.log(req.cookies.jwt);
     if(!req.cookies.jwt){
         return res.status(401).send({message:"No user logged in"});
     }
