@@ -111,7 +111,11 @@ router.post("/login", isLoggedIn, async (req, res) => {
 
 router.post("/logout", isLoggedOut, async(req, res) => {
     try{
-        res.clearCookie("jwt");
+        res.clearCookie("jwt", {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true
+        });
         res.status(200).send({message: 'Logged out successfully'});
     } catch(err) {
         console.log(err);
