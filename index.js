@@ -28,7 +28,7 @@ app.use('/users',conversationRouter);
 
 const port=process.env.PORT||8000;
 
-server.listen(port,()=>{
+app.listen(port,()=>{
     console.log(`Server running at port ${port}`);
 });
 
