@@ -70,7 +70,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
     }
 });
 
-router.post("/login", isLoggedIn, async (req, res) => {
+router.post("/login",async (req, res) => {
     try {
         const { email, password } = req.body;
 
