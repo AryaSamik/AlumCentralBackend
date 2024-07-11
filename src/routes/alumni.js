@@ -58,7 +58,6 @@ router.post('/register', upload.single('image'), async (req, res) => {
             password: hashedPassword,
         });
         
-        generateTokenAndSetCookie(newAlumni._id, req, res);
         await newAlumni.save();
         return res.status(201).json({
             message: 'Registration successful',
@@ -86,6 +85,13 @@ router.post("/login", isLoggedIn, async (req, res) => {
             return res.status(400).json({ message: 'No such user exists' });
         }
 
+        //Check for verified User
+        if(!user.verified){
+            return res.status(401).json({
+                message: "User Verification pending"
+            })
+        }
+
         // Compare the provided password with the stored hashed password
         const passCheck = await bcrypt.compare(password, user.password);
         if (!passCheck) {
@@ -104,7 +110,7 @@ router.post("/login", isLoggedIn, async (req, res) => {
     } catch (err) {
         console.error(err);
         // Ensure a valid status code is sent
-        res.status(500).json({ message: 'Internal Server Error' });
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
