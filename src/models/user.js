@@ -57,6 +57,9 @@ const alumniSchema = new Schema({
   password: {
     type: String,
     required: true,
+  },
+  emailVerificationToken: {
+    type: String
   }
 });
 

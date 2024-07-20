@@ -1,0 +1,41 @@
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp@gmail.com',
+    port: 465,
+    secure: true,
+    auth:{
+        user: process.env.EMAIL, //sender gmail address
+        pass: process.env.EMAIL_APP_PASSWORD //sender app password for your gmail
+    }
+});
+
+const sendEmailVerificationMail = async (userEmail, token) => {
+    try{
+        console.log(userEmail);
+        const verificationUrl = `https://alumcentralbackend-1.onrender.com/alumni/verify-email?token=${token}`;
+        const mailOptions = {
+            from:{
+                name: 'AlumCentral',
+                address: process.env.EMAIL
+            },
+            to: userEmail,
+            subject: "Email Verification",
+            text: `Please verify your email by clicking the following link: ${verificationUrl}`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+            return console.log(error);
+            }
+            console.log('Email sent to ' + userEmail);
+        });
+    }catch(err){
+        console.log(err);
+    }
+    
+}
+
+module.exports = sendEmailVerificationMail;
