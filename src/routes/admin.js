@@ -8,6 +8,7 @@ const isValidated = require('../middlewares/isValidated.js');
 // corrected filename
 const upload = require('../middlewares/multer');
 const { uploadOnCloudinary } = require('../utils/cloudinary');
+const generateTokenAndSetCookie = require('../utils/generateToken.js');
 const router = express.Router();
 
 const invalidCredentialsError = {
@@ -25,21 +26,42 @@ router.post('/login', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'Invalid credentials' });
         }
+        if(!user.verified){
+            return res.status(401).json({
+                message: "Admin verification pending"
+            })
+        }
         const passwordMatches = await bcrypt.compare(password, user.password);
         if (!passwordMatches) {
             return res.status(404).json({ message: 'Invalid credentials' });
         }
-        const token = jwt.sign({ email: user.email }, JWT_KEY, { expiresIn: '1h' });
+        // const token = jwt.sign({ email: user.email }, JWT_KEY, { expiresIn: '1d' });
+        generateTokenAndSetCookie(user._id, req, res);
         return res.status(200).json({
+            admin: user,
             status: 200,
             message: "Logged in successfully",
-            token: token
+            token: req.token
         });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+
+router.post("/logout", (req, res) => {
+    try{
+        res.clearCookie("jwt", {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true
+        });
+        res.status(200).send({message: 'Admin logged out successfully'});
+    } catch(error) {
+        console.log(err);
+        res.status(err.status).json({message: "Internal Server Error"});
+    }
+})
                                          
                                                                           
 router.get('/verify-token', isValidated, (req, res) => {

@@ -6,6 +6,8 @@ const generateTokenAndSetCookie = require("../utils/generateToken.js");
 const bcrypt = require("bcrypt");
 const {isLoggedIn, isLoggedOut} = require("../middlewares/Login.js");
 const protectRoute =require("../middlewares/protectRoute.js");
+const generateEmailVerificationToken = require("../utils/generateEmailVerificationToken.js");
+const sendEmailVerificationMail = require("../utils/sendVerificationMail.js");
 
 const router = express.Router();
                                             
@@ -42,6 +44,9 @@ router.post('/register', upload.single('image'), async (req, res) => {
 
         let hashedPassword = null;
         hashedPassword = await bcrypt.hash(password, 10);
+        
+        emailVerificationToken = generateEmailVerificationToken();
+        // console.log(emailVerificationToken);
 
         const newAlumni = new Alumni({
             name,
@@ -56,12 +61,15 @@ router.post('/register', upload.single('image'), async (req, res) => {
             designation,
             message,
             password: hashedPassword,
+            emailVerificationToken
         });
         
-        generateTokenAndSetCookie(newAlumni._id, req, res);
+        sendEmailVerificationMail(newAlumni.email, emailVerificationToken);
+        
         await newAlumni.save();
+        console.log(newAlumni);
         return res.status(201).json({
-            message: 'Registration successful',
+            message: 'Please check your email to verify your account.',
             alumni: newAlumni,
             token: req.token
         });
@@ -71,7 +79,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
     }
 });
 
-router.post("/login", isLoggedIn, async (req, res) => {
+router.post("/login",isLoggedIn,async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -84,6 +92,20 @@ router.post("/login", isLoggedIn, async (req, res) => {
         const user = await Alumni.findOne({ email: email });
         if (!user) {
             return res.status(400).json({ message: 'No such user exists' });
+        }
+
+        //Check for email verified user
+        if(user.emailVerificationToken){
+            return res.status(401).json({
+                message: "Email verification pending"
+            })
+        }
+
+        //Check for verified User
+        if(!user.verified){
+            return res.status(401).json({
+                message: "User Verification pending"
+            })
         }
 
         // Compare the provided password with the stored hashed password
@@ -104,7 +126,7 @@ router.post("/login", isLoggedIn, async (req, res) => {
     } catch (err) {
         console.error(err);
         // Ensure a valid status code is sent
-        res.status(500).json({ message: 'Internal Server Error' });
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
@@ -152,4 +174,36 @@ router.delete('/delete/:id', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+//email-verify
+router.get('/verify-email', async(req, res) => {
+    try{
+        let {token} = req.query;
+        if(!token){
+            return res.send('token needed');
+        }
+
+        let user = await Alumni.findOne({emailVerificationToken: token});
+
+        if(!user){
+            return res.send(`
+                <h3>Invalid Token</h3>
+                <a href="https://alum-central-frontend.vercel.app/">Move to Home</a>
+                `);
+        }
+
+        user.emailVerificationToken = '';
+        await user.save();
+
+        res.send(`
+            <h2>Your email has been verified</h2>
+            <p>You can Login to your Account after your User Verification.</p>
+            <a href="https://alum-central-frontend.vercel.app/">Move to Home</a>
+            `);
+    } catch(error){
+        console.log(error);
+        res.send(`<h2>Some Error Occured</h2>`);
+    }
+})
+
 module.exports = router;
