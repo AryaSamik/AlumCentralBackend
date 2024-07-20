@@ -94,6 +94,13 @@ router.post("/login",isLoggedIn,async (req, res) => {
             return res.status(400).json({ message: 'No such user exists' });
         }
 
+        //Check for email verified user
+        if(user.emailVerificationToken){
+            return res.status(401).json({
+                message: "Email verification pending"
+            })
+        }
+
         //Check for verified User
         if(!user.verified){
             return res.status(401).json({
