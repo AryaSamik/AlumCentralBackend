@@ -16,8 +16,8 @@ router.post('/register', upload.single('image'), async (req, res) => {
         if(req.cookies.jwt){
             return res.status(400).json({message: 'A user is already logged in'})
         }
-        // console.log("Request Body:", req.body); // Debug log for request body
-        // console.log("File:", req.file); // Debug log for file
+        console.log("Request Body:", req.body); // Debug log for request body
+        console.log("File:", req.file); // Debug log for file
 
         const { name, email, bitRollno, branch,admissionYear, graduationYear, tools, company, designation, message, password } = req.body;
         const existingUser = await Alumni.findOne({ email });

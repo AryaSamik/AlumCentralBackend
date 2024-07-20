@@ -14,7 +14,6 @@ const transporter = nodemailer.createTransport({
 
 const sendEmailVerificationMail = async (userEmail, token) => {
     try{
-        console.log(userEmail);
         const verificationUrl = `https://alumcentralbackend-1.onrender.com/alumni/verify-email?token=${token}`;
         const mailOptions = {
             from:{
