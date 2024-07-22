@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000","http://localhost:3001", "https://alum-central-frontend.vercel.app"],
+        origin: ["http://localhost:3000", "http://localhost:3001", "https://alum-central-frontend.vercel.app"],
         methods: ["POST", "GET", "DELETE", "PATCH"],
     },
 });
@@ -27,15 +27,22 @@ io.on("connection", (socket) => {
     }
 
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    console.log("Current online users:", Object.keys(userSocketMap));
 
     socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
         if (userId) {
             delete userSocketMap[userId];
             io.emit("getOnlineUsers", Object.keys(userSocketMap));
+            console.log("Current online users after disconnect:", Object.keys(userSocketMap));
         }
     });
 });
 
-module.exports = { app, io, server };
-module.exports.getReceiverSocketId = getReceiverSocketId;
+const PORT = process.env.SOCKETPORT||8000;
+server.listen(PORT, () => {
+    console.log(`Socket server listening on port ${PORT}`);
+});
+
+module.exports = {  io, getReceiverSocketId };
+

@@ -2,7 +2,7 @@ const express = require('express');
 const Message = require('../models/message.js');
 const protectRoute = require('../middlewares/protectRoute.js')
 const Conversation = require('../models/conversation.js');
-const { getReceiverSocketId } = require('../socket/socket.js');
+const { getReceiverSocketId ,io } = require('../socket/index.js');
 
 const router = express.Router();
 
