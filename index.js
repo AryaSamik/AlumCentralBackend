@@ -14,8 +14,8 @@ const alumniRouter=require('./src/routes/alumni');
 const cookieParser = require("cookie-parser");
 const messageRouter = require('./src/routes/message');
 const conversationRouter=require('./src/routes/converstion');
-const {app, io, server} = require("./src/socket/socket");
 
+const app=express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOption));
@@ -27,8 +27,7 @@ app.use('/messages',messageRouter);
 app.use('/users',conversationRouter);
 
 const port=process.env.PORT||8000;
-
-server.listen(port,()=>{
+app.listen(port,()=>{
     console.log(`Server running at port ${port}`);
 });
 

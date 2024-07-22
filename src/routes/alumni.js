@@ -41,10 +41,10 @@ router.post('/register', upload.single('image'), async (req, res) => {
             console.error("No file uploaded");
             return res.status(400).json({ message: 'No image file provided' });
         }
-
+           console.log("step1");
         let hashedPassword = null;
         hashedPassword = await bcrypt.hash(password, 10);
-        
+        console.log("step2");
         emailVerificationToken = generateEmailVerificationToken();
         // console.log(emailVerificationToken);
 
@@ -63,7 +63,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
             password: hashedPassword,
             emailVerificationToken
         });
-        
+        console.log("yaha tak aa gye");
         sendEmailVerificationMail(newAlumni.email, emailVerificationToken);
         
         await newAlumni.save();
