@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     socket.on("sendMessage", (message) => {
         console.log(message);
         let receiverSocketId = userSocketMap[message.receiverId];
-        if(!receiverSocketId){
+        if(receiverSocketId){
             console.log("emitted");
             io.to(receiverSocketId).emit("getMessage", message);
         }
