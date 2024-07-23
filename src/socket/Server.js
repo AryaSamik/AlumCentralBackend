@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
         console.log(message);
         let receiverSocketId = userSocketMap[message.receiverId];
         if(!receiverSocketId){
-            io.to(receiverSocketId).emit("getMessage", message.message);
+            io.to(receiverSocketId).emit("getMessage", message);
         }
     })
 
