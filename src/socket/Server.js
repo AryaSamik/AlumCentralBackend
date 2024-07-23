@@ -29,6 +29,14 @@ io.on("connection", (socket) => {
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
     console.log("Current online users:", Object.keys(userSocketMap));
 
+    socket.on("sendMessage", (message) => {
+        console.log(message);
+        let receiverSocketId = userSocketMap[message.receiverId];
+        if(!receiverSocketId){
+            io.to(receiverSocketId).emit("getMessage", message.message);
+        }
+    })
+
     socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
         if (userId) {
