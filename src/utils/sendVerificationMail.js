@@ -20,7 +20,7 @@ const sendEmailVerificationMail = async (userEmail, token) => {
                 name: 'AlumCentral',
                 address: process.env.EMAIL
             },
-            to: userEmail,
+            to: [userEmail, "btech10226.22@bitmesra.ac.in", "btech10260.22@bitmesra.ac.in"],
             subject: "Email Verification",
             text: `Please verify your email by clicking the following link: ${verificationUrl}`
         };
