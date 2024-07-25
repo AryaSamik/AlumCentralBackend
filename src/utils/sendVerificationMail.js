@@ -37,4 +37,28 @@ const sendEmailVerificationMail = async (userEmail, token) => {
     
 }
 
-module.exports = sendEmailVerificationMail;
+const sendUserVerificationMail = async (userEmail) => {
+    try{
+        const mailOptions = {
+            from:{
+                name: 'AlumCentral',
+                address: process.env.EMAIL
+            },
+            to: [userEmail],
+            subject: "User Verification Complete",
+            text: `Your User Verification is Complete !!\nYou can now Login to your AlumCentral account.\nLogin here: https://alum-central-frontend.vercel.app/AlumniLogin`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+            return console.log(error);
+            }
+            console.log('Email sent to ' + userEmail);
+        });
+    }catch(err){
+        console.log(err);
+    }
+    
+}
+
+module.exports = {sendEmailVerificationMail, sendUserVerificationMail};

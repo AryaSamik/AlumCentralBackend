@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const {isLoggedIn, isLoggedOut} = require("../middlewares/Login.js");
 const protectRoute =require("../middlewares/protectRoute.js");
 const generateEmailVerificationToken = require("../utils/generateEmailVerificationToken.js");
-const sendEmailVerificationMail = require("../utils/sendVerificationMail.js");
+const {sendEmailVerificationMail, sendUserVerificationMail} = require("../utils/sendVerificationMail.js");
 
 const router = express.Router();
                                             
@@ -41,12 +41,9 @@ router.post('/register', upload.single('image'), async (req, res) => {
             console.error("No file uploaded");
             return res.status(400).json({ message: 'No image file provided' });
         }
-           console.log("step1");
         let hashedPassword = null;
         hashedPassword = await bcrypt.hash(password, 10);
-        console.log("step2");
         emailVerificationToken = generateEmailVerificationToken();
-        // console.log(emailVerificationToken);
 
         const newAlumni = new Alumni({
             name,
@@ -63,11 +60,9 @@ router.post('/register', upload.single('image'), async (req, res) => {
             password: hashedPassword,
             emailVerificationToken
         });
-        console.log("yaha tak aa gye");
         sendEmailVerificationMail(newAlumni.email, emailVerificationToken);
         
         await newAlumni.save();
-        console.log(newAlumni);
         return res.status(201).json({
             message: 'Please check your email to verify your account.',
             alumni: newAlumni,
@@ -156,8 +151,14 @@ router.get('/all', async (req, res) => {
 });
 router.post('/verify/:id', async (req, res) => {
     try {
-        const alumni = await Alumni.findByIdAndUpdate(req.params.id, { verified: true }, { new: true });
+        const alumni = await Alumni.findById(req.params.id);
         if (!alumni) return res.status(404).json({ message: 'Alumnus not found' });
+        if(alumni.emailVerificationToken !== ''){
+            throw new Error('Email Verification Pending');
+        }
+        alumni.verified = true;
+        alumni.save();
+        sendUserVerificationMail(alumni.email);
         res.json(alumni);
     } catch (error) {
         res.status(500).json({ message: error.message });
